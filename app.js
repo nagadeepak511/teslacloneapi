@@ -13,6 +13,14 @@ app.get('/', (req, res)=>{
     res.send('welcome to tesla-clone api')
 })
 
+// categories
+app.get('/categories', (req, res)=>{
+    db.collection('categories').find().toArray((err, result)=>{
+        if(err) throw err
+        res.send(result)
+    })
+})
+
 // model wrt name
 app.get('/:modelname', (req, res)=>{
     var modelname = req.params.modelname
