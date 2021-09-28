@@ -8,6 +8,9 @@ var MongoClient = mongo.MongoClient
 var mongoUrl = 'mongodb+srv://naga:test123@edumato.1t9ez.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
 var db;
 
+var cors = require('cors')
+app.use(cors())
+
 // home
 app.get('/', (req, res)=>{
     res.send('welcome to tesla-clone api')
