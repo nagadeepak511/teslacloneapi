@@ -4,7 +4,7 @@
   "description": "This is website made by Naga Deepak Kaza(ofcourse the data collected is from the official tesla website)",
   "main": "index.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "nodemon app.js"
   },
   "keywords": [
     "teslaclone"
@@ -12,6 +12,7 @@
   "author": "naga",
   "license": "ISC",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "mongo": "^0.1.0"
   }
