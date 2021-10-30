@@ -1,54 +1,81 @@
-var express = require('express')
-var app = express()
+var express = require('express');
+var app = express();
 
-var port = process.env.PORT||8080
+var mongoDB = require('mongodb');
+var MongoClient = mongoDB.MongoClient;
+var port = process.env.PORT||8080;
+var mongoUrl = 'mongodb+srv://naga:test123@edumato.1t9ez.mongodb.net/myFirstDatabase?retryWrites=true&w=majority';
+let db;
 
-var mongo = require('mongodb')
-var MongoClient = mongo.MongoClient
-var mongoUrl = 'mongodb+srv://naga:test123@edumato.1t9ez.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
-var db;
+var cors = require('cors');
+const { query } = require('express');
+app.use(cors());
 
-var cors = require('cors')
-app.use(cors())
-
-// home
+// Home
 app.get('/', (req, res)=>{
-    res.send('welcome to tesla-clone api')
+    res.send("Welcome to Edumato api by naga")
 })
 
-// categories
-app.get('/categories', (req, res)=>{
-    db.collection('categories').find().toArray((err, result)=>{
-        if(err) throw err
-        res.send(result)
+// page 1
+// mealtypes
+app.get('/mealtypes', (req, res)=>{
+    db.collection('mealtypes').find().toArray((err, result)=>{
+        if(err) throw err;
+        res.send(result);
     })
 })
 
-// model wrt name
-app.get('/:modelname', (req, res)=>{
-    var modelname = req.params.modelname
-    db.collection(modelname).find().toArray((err, result)=>{
-        if(err) throw err
-        res.send(result)
+// locations
+app.get('/locations', (req, res)=>{
+    db.collection('locations').find().toArray((err, result)=>{
+        if(err) throw err;
+        if(!req.query.states) res.send(result);
+        else{
+            var filters = [];
+            result.map((location)=>{
+                var x = {id:location.state_id,state:location.state};
+                if(filters.filter((i)=>{
+                    return (i.id == x.id && i.state==x.state);
+                }).length == 0) filters.push(x);
+            })
+            res.send(filters);
+        }
     })
 })
 
-// category wrt modelname and categoryname
-app.get('/:modelname/:categoryname', (req, res)=>{
-    var categoryname = req.params.categoryname
-    var modelname = req.params.modelname
-    db.collection(modelname).find({"category":categoryname}).toArray((err, result)=>{
-        if(err) throw err
-        res.send(result)
+// restaurants
+app.get('/restaurants', (req, res)=>{
+    var query = {};
+    if(!req.query.state && !req.query.mealtype){
+        query = {};
+    }
+    else if(req.query.state){
+        if(!req.query.mealtype) query.state_id = Number(req.query.state);
+        else{
+            query = {
+                state_id: Number(req.query.state),
+                "mealTypes.mealtype_id":Number(req.query.mealtype)
+            }
+        }
+    }
+    else query = {mealtype:-1};
+    db.collection('restaurantdata').find(query).toArray((err, result)=>{
+        if(err) throw err;
+        res.send(result);
     })
 })
 
-// connect with mongo cloud db
+// page2
+
+
+// connect db
 MongoClient.connect(mongoUrl, (err, client)=>{
-    if(err) console.log('error while connecting')
-    db = client.db('tesla')
+    if(err) console.log('error while connecting');
+    else{
+        db = client.db('edumato1');
+    }
 })
 
 app.listen(port, ()=>{
-    console.log('listening on port '+port)
-})
+    console.log('running on ',port)
+});
